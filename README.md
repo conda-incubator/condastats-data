@@ -1,6 +1,6 @@
 # condastats-data
 
-Mirrored [Anaconda public package download data](https://github.com/ContinuumIO/anaconda-package-data)
+Mirrored [Anaconda public package download data](https://github.com/anaconda/anaconda-package-data)
 (monthly Parquet files) served via GitHub Pages for the
 [condastats](https://github.com/conda-incubator/condastats) browser demo.
 
