@@ -1,0 +1,43 @@
+name: Sync Anaconda package data
+
+on:
+  schedule:
+    # Run on the 5th of each month at 06:00 UTC
+    # (Anaconda typically publishes the previous month's data in the first few days)
+    - cron: "0 6 5 * *"
+  workflow_dispatch: # Allow manual trigger
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install AWS CLI
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q awscli
+
+      - name: Sync monthly parquet files from S3
+        run: |
+          mkdir -p data
+          aws s3 sync s3://anaconda-package-data/conda/monthly/ data/ \
+            --no-sign-request \
+            --only-show-errors
+
+      - name: List synced files
+        run: |
+          echo "Synced files:"
+          find data -name '*.parquet' | sort
+          echo ""
+          echo "Total size:"
+          du -sh data/
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@4f9cc6602d3f66b9c108549d475ec49e8ef4d45e # v4.0.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./data
+          force_orphan: true
+          commit_message: "sync: update monthly parquet data"
